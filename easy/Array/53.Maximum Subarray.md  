@@ -1,0 +1,93 @@
+### 1.题目描述
+给定一个整数数组 nums ，找到一个具有最大和的连续子数组（子数组最少包含一个元素），返回其最大和。
+
+### 2.解题思路
+
+1. 暴力枚举法
+不说，太简单
+
+2. 分治法，使用递归
+
+分成三种情况来处理： 最小子序列在左边，在右边，以及横跨左右
+这里学习一种标准的递归写法，递归在这里的算法复杂度为：Nlog(N)
+
+```c++
+int maxSubArray(vector<int>&nums, int left, int right){
+    int leftSumValue = 0；
+    int rightSumValue = 0;
+    int midSumValue = 0;
+
+    int center = (right - left)/2;
+    
+    //子序列在左边的情况
+    leftSumValue = maxSubArray(nums, left, center);
+
+    //子序列在右边的情况
+    rightSumValue = maxSubArray(nums, center+1, right);
+
+    //子序列横跨左右
+    int left_boder_sum = 0;
+    int left_boder_maxsum = 0;
+    for(int i=center;i>=left; i--){
+        left_boder_sum += nums[i];
+        if(left_boder_sum > left_boder_maxsum)
+            left_boder_maxsum = left_boder_sum;
+    }
+
+    int right_boder_sum = 0;
+    int right_boder_maxsum = 0;
+    for(int i=center+1; i<right;i++){
+        right_boder_sum+=nums[i];
+        if(right_boder_sum>right_boder_maxsum){
+            right_boder_maxsum = right_boder_sum;
+        }
+    }
+
+    midSumValue = left_boder_maxsum + right_boder_maxsum;
+
+    int result = Math.max(Math.max(leftSumValue, rightSumValue),midSumValue);
+
+}
+```
+
+
+3. 贪心算法
+
+把握一个题目的规律以及根本，就是子序列的前一个子序列不可能是负数，如果是负数，那么得到的字序列的大小肯定就会更小，比如：
+
+5 6 -1 -13 5 9
+
+这个数，一开始的5 和 6是可以的，最大的和为11，但是加上了-13这一个数后，显然，整个前面的子序列都需要抛弃，后面的子序列才有可能
+会比之前得到的最大子序列和11更大。
+
+由此可以得到一种复杂度只有O(n)的解法：
+
+```c++
+class Solution {
+public:
+    int maxSubArray(vector<int>& nums) {
+        //检查元素数组是空的情况
+        if(nums.size()==0)
+            return 0;
+        //sum_max 必须等于nums[0],可以覆盖当所有元素都是负数时的情况
+        int sum_max = nums[0];
+        int mid_sum = 0;
+        for(int i=0; i<nums.size(); i++){
+            mid_sum += nums[i];
+            if(mid_sum>=sum_max)
+                sum_max = mid_sum;
+            if(mid_sum <0){
+                mid_sum = 0;
+            }
+        }
+        return sum_max;
+    }
+};
+```
+
+注意，
+
+### 3.总结
+
+1. 这个题目的相关算法，在这个视频里面有专门的介绍：https://www.youtube.com/watch?time_continue=19&v=86CQq3pKSUw
+    仔细学习后，重新自己整理一遍思路
